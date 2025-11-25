@@ -1,0 +1,385 @@
+:root[data-theme="dark"] {
+  --bg1: #0b1316;
+  --bg2: #0f1a1e;
+  --bg1-alt: #1a2a33;
+  --bg2-alt: #0b1316;
+
+  --text: #e6eef2;
+  --muted: #9aa6ae;
+  --card-bg: rgba(16, 28, 32, 0.55);
+  --border: rgba(255,255,255,0.08);
+
+  --accent: #1586ff;
+  --accent2: #0f7ef7;
+
+  --blur1: rgba(21,134,255,0.18);
+  --blur2: rgba(0,180,255,0.12);
+  --blur3: rgba(255,255,255,0.07);
+}
+
+:root[data-theme="light"] {
+  --bg1: #f6f7f9;
+  --bg2: #ffffff;
+  --bg1-alt: #e3e6eb;
+  --bg2-alt: #ffffff;
+
+  --text: #1b2a34;
+  --muted: #6c7a89;
+  --card-bg: rgba(255,255,255,0.75);
+  --border: rgba(0,0,0,0.08);
+
+  --accent: #0066ff;
+  --accent2: #0053d8;
+
+  --blur1: rgba(0,123,255,0.15);
+  --blur2: rgba(0,180,255,0.1);
+  --blur3: rgba(0,0,0,0.05);
+}
+:root {
+  --bg1: #0b1316;
+  --bg2: #0f1a1e;
+  --muted: #9aa6ae;
+  --card-bg: rgba(16, 28, 32, 0.55);
+  --border: rgba(255,255,255,0.06);
+  --accent: #1586ff;
+  --accent2: #0f7ef7;
+}
+
+/* RESET */
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  transition: background 0.8s ease, color 0.5s ease;
+  background: linear-gradient(120deg, var(--bg1), var(--bg2));
+  background-size: 400% 400%;
+  animation: gradientBG 20s ease infinite;
+  position: relative;
+  overflow-x: hidden;
+}
+
+@keyframes gradientBG {
+  0% { background: linear-gradient(120deg, var(--bg1), var(--bg2)); }
+  50% { background: linear-gradient(120deg, var(--bg1-alt), var(--bg2-alt)); }
+  100% { background: linear-gradient(120deg, var(--bg1), var(--bg2)); }
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 70% 20%, var(--blur1), transparent 60%),
+    radial-gradient(circle at 30% 80%, var(--blur2), transparent 55%);
+  filter: blur(100px);
+  z-index: -2;
+  transition: background 0.8s ease;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  width: 1000px;
+  height: 500px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, var(--blur3), transparent 70%);
+  filter: blur(120px);
+  z-index: -2;
+  transition: background 0.8s ease;
+}
+
+/* PAGE CENTER */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  animation: fadeIn 0.6s ease;
+}
+
+.login-page::before {
+  content: "";
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
+  opacity: 0.08;
+  z-index: -1;
+  transition: opacity 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* HEADER */
+.login-header {
+  text-align: center;
+  margin-bottom: 28px;
+  animation: fadeDown 0.6s ease;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modern-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* LOGO CIRCLE */
+.logo-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, rgba(21,134,255,0.4), rgba(255,255,255,0.05));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 0 25px rgba(21,134,255,0.25);
+  animation: logoPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%   { transform: scale(1); box-shadow: 0 0 25px rgba(21,134,255,0.25); }
+  50%  { transform: scale(1.1); box-shadow: 0 0 35px rgba(21,134,255,0.45); }
+  100% { transform: scale(1); box-shadow: 0 0 25px rgba(21,134,255,0.25); }
+}
+
+.logo-inner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #1e90ff, #0b5cc6);
+  box-shadow: inset 0 0 12px rgba(255,255,255,0.3);
+  animation: innerRotate 8s linear infinite;
+}
+
+@keyframes innerRotate {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.brand-text {
+  text-align: center;
+}
+
+.brand-title {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(to right, #dfe7ec, #8ea3b4);
+  -webkit-background-clip: text;
+  color: transparent;
+  letter-spacing: 0.5px;
+}
+
+.brand-sub {
+  font-size: 14px;
+  margin-top: 4px;
+  color: var(--muted);
+  letter-spacing: 0.2px;
+  opacity: 0.85;
+}
+
+/* MAIN */
+.login-main {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* CARD */
+.login-card {
+  width: 420px;
+  padding: 36px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+  transition: all 0.28s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 32px 60px rgba(0,0,0,0.75);
+}
+
+/* TITLE */
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.muted {
+  margin-bottom: 22px;
+  color: var(--muted);
+}
+
+/* INPUT */
+.label {
+  margin: 14px 0 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap input {
+  width: 100%;
+  padding: 14px 48px 14px 16px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text); /* <-- thay #fff bằng biến --text */
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-wrap input::placeholder {
+  color: var(--muted); /* placeholder cũng theo theme */
+}
+
+.input-wrap input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(21,134,255,0.25);
+}
+
+.eye-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.eye-btn:hover {
+  color: var(--accent);
+}
+
+/* BUTTON */
+.primary {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  background: linear-gradient(180deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  color: white;
+  transition: 0.2s;
+}
+
+.primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* ERROR */
+.error-text {
+  font-size: 13px;
+  color: #ff6b6b;
+  margin: 4px 0 12px 2px; /* margin-top dương để tránh che input */
+  animation: fadeIn 0.2s ease;
+}
+
+.input-wrap.has-error input {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 6px rgba(255, 107, 107, 0.4);
+}
+
+/* FOOTER */
+.site-footer {
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.login-footer {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.login-footer a {
+  color: var(--accent);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: 0.2s;
+}
+
+.theme-toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+/* REMEMBER ME */
+.remember-me {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.remember-me input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* PAUSE ANIMATION khi focus */
+.login-page.paused .login-card {
+  animation-play-state: paused !important;
+  transform: translateY(0) !important;
+}
+
