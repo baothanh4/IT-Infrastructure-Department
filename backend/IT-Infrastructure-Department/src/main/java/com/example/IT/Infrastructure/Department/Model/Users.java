@@ -33,6 +33,12 @@ public class Users {
     @Email
     private String email;
 
+    @NotBlank(message = "Phone must not empty")
+    private String phone;
+
+    @NotBlank(message = "Fullname must not be empty")
+    private String full_name;
+
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
