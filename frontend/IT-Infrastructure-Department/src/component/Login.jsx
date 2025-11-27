@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./Login.css";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { BsSun, BsMoon } from "react-icons/bs";
+import api from "./api";
 
 export default function Login() {
   // ------------------ STATE ------------------
@@ -44,19 +45,33 @@ export default function Login() {
     validateField(name, value);
   }
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    validateField("username", form.username);
-    validateField("password", form.password);
+function handleSubmit(e) {
+  e.preventDefault();
+  validateField("username", form.username);
+  validateField("password", form.password);
 
-    if (Object.keys(errors).length === 0 && form.username && form.password) {
-      console.log("Login success", form);
+  if (Object.keys(errors).length === 0 && form.username && form.password) {
+    // gọi backend
+    api.post("/auth/login", {
+      username: form.username,
+      password: form.password,
+    })
+      .then((res) => {
+        console.log("Login success:", res.data);
 
-      // xử lý Remember Me
-      if (rememberMe) localStorage.setItem("rememberedUser", form.username);
-      else localStorage.removeItem("rememberedUser");
-    }
+        // Lưu token nếu dùng JWT
+        localStorage.setItem("accessToken", res.data.accessToken);
+        localStorage.setItem("refreshToken", res.data.refreshToken);
+
+        if (rememberMe) localStorage.setItem("rememberedUser", form.username);
+        else localStorage.removeItem("rememberedUser");
+      })
+      .catch((err) => {
+        console.error("Login failed:", err.response?.data?.message || err.message);
+        alert(err.response?.data?.message || "Login failed");
+      });
   }
+}
 
   // ------------------ THEME TOGGLE ------------------
   function toggleTheme() {
