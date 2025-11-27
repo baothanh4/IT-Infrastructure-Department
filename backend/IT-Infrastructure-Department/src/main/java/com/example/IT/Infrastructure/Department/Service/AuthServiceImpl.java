@@ -1,17 +1,20 @@
 package com.example.IT.Infrastructure.Department.Service;
 
-import com.example.IT.Infrastructure.Department.DTO.UserRegisterDTO;
+import com.example.IT.Infrastructure.Department.Config.JwtUtil;
+import com.example.IT.Infrastructure.Department.DTO.JwtResponse;
+import com.example.IT.Infrastructure.Department.DTO.LoginRequestDTO;
+import com.example.IT.Infrastructure.Department.DTO.RegisterRequestDTO;
 import com.example.IT.Infrastructure.Department.Enum.UserStatus;
-import com.example.IT.Infrastructure.Department.Model.UserRole;
+import com.example.IT.Infrastructure.Department.Model.Role;
 import com.example.IT.Infrastructure.Department.Model.Users;
-import com.example.IT.Infrastructure.Department.Repository.RolesRepository;
+import com.example.IT.Infrastructure.Department.Repository.RoleRepository;
 import com.example.IT.Infrastructure.Department.Repository.UserRepository;
-import com.example.IT.Infrastructure.Department.Repository.UserRoleRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -20,22 +23,26 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserRoleRepository userRoleRepository;
+    private JwtUtil jwtUtil;
 
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final long LOCK_TIME_DURATION = 15 * 60; // 15 phút tính bằng giây
 
     @Override
-    public Users Register(UserRegisterDTO dto) {
-
-        if (userRepository.existsByUsername(dto.getUsername())) {
+    public void register(RegisterRequestDTO dto) {
+        if(userRepository.existsByUsername(dto.getUsername())) {
             throw new RuntimeException("Username is already in use");
         }
-        if (userRepository.existsByEmail(dto.getEmail())) {
+        if(userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email is already in use");
         }
-        if (userRepository.existsByPhone(dto.getPhone())) {
+        if(userRepository.existsByPhone(dto.getPhone())) {
             throw new RuntimeException("Phone is already in use");
         }
 
@@ -45,10 +52,75 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(dto.getEmail());
         user.setPhone(dto.getPhone());
         user.setFull_name(dto.getFull_name());
-        user.setStatus(UserStatus.DEACTIVED);  // đợi admin kích hoạt
-        user.setCreate_at(LocalDate.now());
+        user.setStatus(UserStatus.ACTIVED);
+        user.setAccount_non_locked(true);
+        user.setFailed_attempts(0);
 
-        return userRepository.save(user);   // chỉ lưu user
+        Role role = roleRepository.findById(dto.getRoleId())
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+        user.setRole(role);
+
+        userRepository.save(user);
     }
 
+    @Override
+    public JwtResponse login(LoginRequestDTO dto) {
+        Users user = userRepository.findByUsername(dto.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        unlockAccountIfNeeded(user);
+
+        if (!user.getAccount_non_locked()) {
+            throw new RuntimeException("Account is locked. Try again later.");
+        }
+
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            increaseFailedAttempts(user);
+            throw new RuntimeException("Username or password is incorrect");
+        }
+
+        resetFailedAttempts(user);
+
+        // Generate JWT
+        String accessToken = jwtUtil.generateAccessToken(user.getUsername(), user.getRole().getName());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
+
+        JwtResponse jwtResponse = new JwtResponse();
+        jwtResponse.setAccessToken(accessToken);
+        jwtResponse.setRefreshToken(refreshToken);
+        return jwtResponse;
+    }
+
+    private void increaseFailedAttempts(Users user) {
+        int newFailCount = user.getFailed_attempts() + 1;
+        user.setFailed_attempts(newFailCount);
+
+        if (newFailCount >= MAX_FAILED_ATTEMPTS) {
+            user.setAccount_non_locked(false);
+            user.setLock_time(LocalDateTime.now());
+        }
+
+        userRepository.save(user);
+    }
+
+    private void resetFailedAttempts(Users user) {
+        if (user.getFailed_attempts() > 0) {
+            user.setFailed_attempts(0);
+            user.setAccount_non_locked(true);
+            user.setLock_time(null);
+            userRepository.save(user);
+        }
+    }
+
+    private void unlockAccountIfNeeded(Users user) {
+        if (!user.getAccount_non_locked() && user.getLock_time() != null) {
+            LocalDateTime unlockTime = user.getLock_time().plusSeconds(LOCK_TIME_DURATION);
+            if (LocalDateTime.now().isAfter(unlockTime)) {
+                user.setAccount_non_locked(true);
+                user.setFailed_attempts(0);
+                user.setLock_time(null);
+                userRepository.save(user);
+            }
+        }
+    }
 }

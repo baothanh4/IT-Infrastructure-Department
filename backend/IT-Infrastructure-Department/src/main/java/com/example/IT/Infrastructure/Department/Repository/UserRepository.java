@@ -1,11 +1,15 @@
 package com.example.IT.Infrastructure.Department.Repository;
 
 import com.example.IT.Infrastructure.Department.Model.Users;
-import jdk.jfr.Registered;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-@Registered
-public interface UserRepository extends JpaRepository<Users, Long> {
+import java.util.Optional;
+
+@Repository
+public interface UserRepository extends JpaRepository<Users,Long> {
+    Optional<Users> findByUsername(String username);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     boolean existsByPhone(String phone);
