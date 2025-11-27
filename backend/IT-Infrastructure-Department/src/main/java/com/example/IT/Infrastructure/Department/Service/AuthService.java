@@ -1,8 +1,11 @@
 package com.example.IT.Infrastructure.Department.Service;
 
-import com.example.IT.Infrastructure.Department.DTO.UserRegisterDTO;
-import com.example.IT.Infrastructure.Department.Model.Users;
+import com.example.IT.Infrastructure.Department.DTO.JwtResponse;
+import com.example.IT.Infrastructure.Department.DTO.LoginRequestDTO;
+import com.example.IT.Infrastructure.Department.DTO.RegisterRequestDTO;
 
 public interface AuthService {
-    Users Register(UserRegisterDTO dto);
+    void register(RegisterRequestDTO dto);
+
+    JwtResponse login(LoginRequestDTO dto);
 }
