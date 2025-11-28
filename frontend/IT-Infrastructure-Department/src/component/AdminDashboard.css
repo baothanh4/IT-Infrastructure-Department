@@ -1,0 +1,35 @@
+:root{--bg:#0f1a1e;--card:#0d1a1d;--muted:#9aa6ae;--border:rgba(255,255,255,0.04);--accent:#1586ff}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter, system-ui, Roboto, Arial;background:var(--bg);color:#e6eef2}
+.admin-root{display:flex;min-height:100vh}
+.sidebar{width:220px;background:#0c1720;padding:28px 16px;display:flex;flex-direction:column}
+.sidebar-header{font-weight:700;margin-bottom:18px}
+.muted{color:var(--muted);font-size:13px}
+.nav{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.nav-item{padding:10px 12px;border-radius:8px;color:var(--muted);text-decoration:none}
+.nav-item.active{background:#14232b;color:#8fb7ff}
+.sidebar-footer{margin-top:auto;color:var(--muted)}
+
+.main-area{flex:1;padding:32px}
+.main-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.main-header h1{margin:0;font-size:28px}
+.sub{color:var(--muted);margin:6px 0 0}
+.actions{display:flex;gap:12px;align-items:center}
+.search{padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:inherit;min-width:360px}
+.add-btn{background:linear-gradient(180deg,var(--accent),#0f7ef7);border:0;padding:10px 14px;border-radius:8px;color:white;font-weight:700}
+
+.table-card{background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.005));border:1px solid var(--border);padding:18px;border-radius:10px}
+.table-controls{display:flex;justify-content:space-between;margin-bottom:12px}
+.filters select{padding:8px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted)}
+.users-table{width:100%;border-collapse:collapse}
+.users-table thead th{text-align:left;padding:14px 12px;color:var(--muted);font-size:13px}
+.users-table tbody td{padding:18px 12px;border-top:1px solid rgba(255,255,255,0.02)}
+.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+.status{padding:6px 10px;border-radius:12px;font-size:13px}
+.status.active{background:#0e6b27;color:#c6f3c6}
+.status.inactive{background:#374151;color:#c0c0c0}
+.actions-cell{color:var(--muted)}
+.table-footer{display:flex;justify-content:space-between;color:var(--muted);margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.02)}
+.pager{background:transparent;padding:6px;border-radius:6px}
+
+@media (max-width:900px){.sidebar{display:none}.search{min-width:220px}}

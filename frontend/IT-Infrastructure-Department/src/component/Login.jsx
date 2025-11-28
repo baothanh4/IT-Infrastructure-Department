@@ -1,16 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Login.css";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { BsSun, BsMoon } from "react-icons/bs";
 import api from "./api";
+import { useNavigate } from "react-router-dom";
+// Rive
+import { useRive } from "@rive-app/react-canvas";
+import orbAnimation from "../assets/animation/19994-37609-gradient-orb.riv";
 
-export default function Login() {
+export default function Login({ onLogin }) {
   // ------------------ STATE ------------------
   const [form, setForm] = useState(() => {
     const rememberedUser = localStorage.getItem("rememberedUser") || "";
     return { username: rememberedUser, password: "" };
   });
+
   const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState(""); // 👈 Lỗi backend login
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem("theme");
@@ -18,11 +25,24 @@ export default function Login() {
     return saved || "dark";
   });
   const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem("rememberedUser"));
-  const [isFocused, setIsFocused] = useState(false); // dùng để tạm pause animation
+  const [isFocused, setIsFocused] = useState(false);
+
+  // ------------------ RIVE ANIMATION ------------------
+  const { rive, RiveComponent } = useRive({
+    src: orbAnimation,
+    autoplay: true,
+  });
+
+  useEffect(() => {
+    if (!rive) return;
+    if (isFocused) rive.pause();
+    else rive.play();
+  }, [rive, isFocused]);
 
   // ------------------ VALIDATE ------------------
   function validateField(name, value) {
     const newErrors = { ...errors };
+
     if (name === "username") {
       if (!value.trim()) newErrors.username = "Username or Email is required.";
       else if (value.includes("@")) {
@@ -31,47 +51,67 @@ export default function Login() {
         else delete newErrors.username;
       } else delete newErrors.username;
     }
+
     if (name === "password") {
       if (!value.trim()) newErrors.password = "Password is required.";
       else if (value.length < 6) newErrors.password = "Password must be at least 6 characters.";
       else delete newErrors.password;
     }
+
     setErrors(newErrors);
   }
 
   function handleChange(e) {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
+
     validateField(name, value);
+    setLoginError(""); // clear error khi người dùng gõ lại
   }
 
-function handleSubmit(e) {
-  e.preventDefault();
-  validateField("username", form.username);
-  validateField("password", form.password);
+  // ------------------ SUBMIT ------------------
+  function handleSubmit(e) {
+    e.preventDefault();
+    validateField("username", form.username);
+    validateField("password", form.password);
 
-  if (Object.keys(errors).length === 0 && form.username && form.password) {
-    // gọi backend
-    api.post("/auth/login", {
-      username: form.username,
-      password: form.password,
-    })
-      .then((res) => {
-        console.log("Login success:", res.data);
+    if (Object.keys(errors).length === 0 && form.username && form.password) {
+      api
+        .post("/auth/login", {
+          username: form.username,
+          password: form.password,
+        })
+        .then((res) => {
+          console.log("Login success:", res.data);
+          setLoginError("");
 
-        // Lưu token nếu dùng JWT
-        localStorage.setItem("accessToken", res.data.accessToken);
-        localStorage.setItem("refreshToken", res.data.refreshToken);
+          localStorage.setItem("accessToken", res.data.accessToken);
+          localStorage.setItem("refreshToken", res.data.refreshToken);
 
-        if (rememberMe) localStorage.setItem("rememberedUser", form.username);
-        else localStorage.removeItem("rememberedUser");
-      })
-      .catch((err) => {
-        console.error("Login failed:", err.response?.data?.message || err.message);
-        alert(err.response?.data?.message || "Login failed");
-      });
+          if (rememberMe) localStorage.setItem("rememberedUser", form.username);
+          else localStorage.removeItem("rememberedUser");
+
+          navigate("/dashboard", { replace: true });
+
+          // notify parent that login succeeded so it can navigate
+          if (typeof onLogin === 'function') onLogin();
+        })
+        .catch((err) => {
+          const status = err.response?.status;
+          const backendMessage = err.response?.data?.message;
+
+          if (status === 401) {
+            setLoginError("Username or password is incorrect");
+          } else if (status === 404) {
+            setLoginError("User not found");
+          } else if (status === 423) {
+            setLoginError("Your account is locked. Try again later.");
+          } else {
+            setLoginError(backendMessage || "Login failed. Please try again.");
+          }
+        });
+    }
   }
-}
 
   // ------------------ THEME TOGGLE ------------------
   function toggleTheme() {
@@ -91,13 +131,17 @@ function handleSubmit(e) {
       <header className="login-header">
         <div className="brand modern-brand">
           <div className="logo-circle">
-            <div className="logo-inner"></div>
+            <div className="logo-inner">
+              <RiveComponent />
+            </div>
           </div>
+
           <div className="brand-text">
             <div className="brand-title">InfraCorp</div>
             <div className="brand-sub">Infrastructure Management Portal</div>
           </div>
         </div>
+
         <button className="theme-toggle" onClick={toggleTheme}>
           {theme === "dark" ? <BsSun size={22} /> : <BsMoon size={22} />}
         </button>
@@ -132,15 +176,14 @@ function handleSubmit(e) {
               value={form.password}
               onChange={handleChange}
             />
-            <button
-              type="button"
-              className="eye-btn"
-              onClick={() => setShowPassword(!showPassword)}
-            >
+            <button type="button" className="eye-btn" onClick={() => setShowPassword(!showPassword)}>
               {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
             </button>
           </div>
           {errors.password && <p className="error-text">{errors.password}</p>}
+
+          {/* BACKEND LOGIN ERROR */}
+          {loginError && <p className="error-text login-error">{loginError}</p>}
 
           {/* REMEMBER ME */}
           <div className="remember-me">

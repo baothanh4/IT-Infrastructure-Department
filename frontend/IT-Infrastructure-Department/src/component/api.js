@@ -1,11 +1,15 @@
-import axios from "axios";
+// api.js
+import axios from 'axios';
 
 const api = axios.create({
-  baseURL: "http://localhost:8081/api", // URL backend
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true, // nếu backend dùng cookie
+  baseURL: 'http://localhost:8081/api', // backend base URL
+});
+
+// thêm Authorization nếu cần
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('accessToken');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
 });
 
 export default api;

@@ -249,6 +249,8 @@ body::after {
 
 .input-wrap {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .input-wrap input {
@@ -274,13 +276,14 @@ body::after {
 
 .eye-btn {
   position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 10px;
   background: transparent;
   border: none;
-  color: var(--muted);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .eye-btn:hover {
@@ -382,4 +385,26 @@ body::after {
   animation-play-state: paused !important;
   transform: translateY(0) !important;
 }
+
+.logo-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-inner {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.logo-inner canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 
