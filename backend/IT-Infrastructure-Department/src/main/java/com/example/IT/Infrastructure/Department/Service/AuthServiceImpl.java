@@ -5,14 +5,17 @@ import com.example.IT.Infrastructure.Department.DTO.JwtResponse;
 import com.example.IT.Infrastructure.Department.DTO.LoginRequestDTO;
 import com.example.IT.Infrastructure.Department.DTO.RegisterRequestDTO;
 import com.example.IT.Infrastructure.Department.Enum.UserStatus;
+import com.example.IT.Infrastructure.Department.Exception.InvalidCredentialsException;
 import com.example.IT.Infrastructure.Department.Model.Role;
 import com.example.IT.Infrastructure.Department.Model.Users;
 import com.example.IT.Infrastructure.Department.Repository.RoleRepository;
 import com.example.IT.Infrastructure.Department.Repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -65,23 +68,23 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtResponse login(LoginRequestDTO dto) {
+
         Users user = userRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new InvalidCredentialsException("Username or password is incorrect"));
 
         unlockAccountIfNeeded(user);
 
         if (!user.getAccount_non_locked()) {
-            throw new RuntimeException("Account is locked. Try again later.");
+            throw new InvalidCredentialsException("Account is locked. Try again later.");
         }
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             increaseFailedAttempts(user);
-            throw new RuntimeException("Username or password is incorrect");
+            throw new InvalidCredentialsException("Username or password is incorrect");
         }
 
         resetFailedAttempts(user);
 
-        // Generate JWT
         String accessToken = jwtUtil.generateAccessToken(user.getUsername(), user.getRole().getName());
         String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
 
@@ -90,6 +93,8 @@ public class AuthServiceImpl implements AuthService {
         jwtResponse.setRefreshToken(refreshToken);
         return jwtResponse;
     }
+
+
 
     private void increaseFailedAttempts(Users user) {
         int newFailCount = user.getFailed_attempts() + 1;
