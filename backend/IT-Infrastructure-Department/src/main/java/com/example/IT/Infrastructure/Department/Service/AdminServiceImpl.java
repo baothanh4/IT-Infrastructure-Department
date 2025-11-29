@@ -1,7 +1,9 @@
 package com.example.IT.Infrastructure.Department.Service;
 
 import com.example.IT.Infrastructure.Department.DTO.UserResponseDTO;
+import com.example.IT.Infrastructure.Department.Model.Role;
 import com.example.IT.Infrastructure.Department.Model.Users;
+import com.example.IT.Infrastructure.Department.Repository.RoleRepository;
 import com.example.IT.Infrastructure.Department.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,10 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
 
     @Override
     public List<UserResponseDTO> getAllUsers() {
@@ -35,4 +41,11 @@ public class AdminServiceImpl implements AdminService {
             return dto;
         }).collect(Collectors.toList());
     }
+
+
+    @Override
+    public List<Role> getAllRoles(){
+        return roleRepository.findAll();
+    }
+
 }

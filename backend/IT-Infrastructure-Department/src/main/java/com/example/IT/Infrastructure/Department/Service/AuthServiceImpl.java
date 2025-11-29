@@ -4,6 +4,7 @@ import com.example.IT.Infrastructure.Department.Config.JwtUtil;
 import com.example.IT.Infrastructure.Department.DTO.JwtResponse;
 import com.example.IT.Infrastructure.Department.DTO.LoginRequestDTO;
 import com.example.IT.Infrastructure.Department.DTO.RegisterRequestDTO;
+import com.example.IT.Infrastructure.Department.DTO.RegisterResponseDTO;
 import com.example.IT.Infrastructure.Department.Enum.UserStatus;
 import com.example.IT.Infrastructure.Department.Exception.InvalidCredentialsException;
 import com.example.IT.Infrastructure.Department.Model.Role;
@@ -38,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private static final long LOCK_TIME_DURATION = 15 * 60; // 15 phút tính bằng giây
 
     @Override
-    public void register(RegisterRequestDTO dto) {
+    public RegisterResponseDTO register(RegisterRequestDTO dto) {
         if(userRepository.existsByUsername(dto.getUsername())) {
             throw new RuntimeException("Username is already in use");
         }
@@ -63,7 +64,16 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new RuntimeException("Role not found"));
         user.setRole(role);
 
+        RegisterResponseDTO responseDTO = new RegisterResponseDTO();
+        responseDTO.setUsername(user.getUsername());
+        responseDTO.setEmail(user.getEmail());
+        responseDTO.setPhone(user.getPhone());
+        responseDTO.setFull_name(user.getFull_name());
+        responseDTO.setRole_name(role.getName());
+        responseDTO.setUserStatus(UserStatus.ACTIVED);
         userRepository.save(user);
+        return responseDTO;
+
     }
 
     @Override
