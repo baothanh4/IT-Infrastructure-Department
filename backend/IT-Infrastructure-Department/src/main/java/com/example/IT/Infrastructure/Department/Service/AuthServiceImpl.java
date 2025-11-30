@@ -11,12 +11,9 @@ import com.example.IT.Infrastructure.Department.Model.Role;
 import com.example.IT.Infrastructure.Department.Model.Users;
 import com.example.IT.Infrastructure.Department.Repository.RoleRepository;
 import com.example.IT.Infrastructure.Department.Repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -65,13 +62,15 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(role);
 
         RegisterResponseDTO responseDTO = new RegisterResponseDTO();
+
         responseDTO.setUsername(user.getUsername());
         responseDTO.setEmail(user.getEmail());
         responseDTO.setPhone(user.getPhone());
         responseDTO.setFull_name(user.getFull_name());
         responseDTO.setRole_name(role.getName());
-        responseDTO.setUserStatus(UserStatus.ACTIVED);
+        responseDTO.setStatus(UserStatus.ACTIVED);
         userRepository.save(user);
+
         return responseDTO;
 
     }
@@ -103,8 +102,6 @@ public class AuthServiceImpl implements AuthService {
         jwtResponse.setRefreshToken(refreshToken);
         return jwtResponse;
     }
-
-
 
     private void increaseFailedAttempts(Users user) {
         int newFailCount = user.getFailed_attempts() + 1;
