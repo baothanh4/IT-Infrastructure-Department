@@ -121,6 +121,7 @@ export default function AdminDashboard() {
                 <th>ID</th>
                 <th>USERNAME</th>
                 <th>FULL NAME</th>
+                <th>PHONE</th>
                 <th>EMAIL</th>
                 <th>ROLE</th>
                 <th>STATUS</th>
@@ -133,6 +134,7 @@ export default function AdminDashboard() {
                   <td className="mono">{u.id}</td>
                   <td className="mono">{u.username}</td>
                   <td>{u.full_name}</td>
+                  <td className="mono">{u.phone}</td>
                   <td>{u.email}</td>
                   <td>{u.role_name}</td>
                   <td>
