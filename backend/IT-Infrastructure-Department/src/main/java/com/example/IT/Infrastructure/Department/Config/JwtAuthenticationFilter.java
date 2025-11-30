@@ -1,5 +1,6 @@
 package com.example.IT.Infrastructure.Department.Config;
 
+import com.example.IT.Infrastructure.Department.Repository.BlackListedTokenRepository;
 import com.example.IT.Infrastructure.Department.Service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,6 +21,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
+    private final BlackListedTokenRepository blackListedTokenRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -32,6 +34,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (header != null && header.startsWith("Bearer ")) {
                 token = header.substring(7);
                 username = jwtUtil.getUsernameFromToken(token);
+            }
+            if (blackListedTokenRepository.existsByToken(token)) {
+                System.out.println("Token is blacklisted → reject");
+                filterChain.doFilter(request, response);
+                return;
             }
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

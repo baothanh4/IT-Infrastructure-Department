@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/support/**").hasRole("IT_SUPPORT")
                         .requestMatchers("/api/database/**").hasRole("DATABASE_ADMINISTRATOR")
                         .requestMatchers("/api/cloud/**").hasRole("CLOUD_ARCHITECT")
+                        .requestMatchers("/api/auth/logout").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
