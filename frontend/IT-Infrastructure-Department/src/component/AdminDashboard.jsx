@@ -7,6 +7,7 @@ export default function AdminDashboard() {
   const [roles, setRoles] = useState([]);
   const [showAddUser, setShowAddUser] = useState(false);
   const [newUser, setNewUser] = useState({
+    id: '',
     username: '',
     password: '',
     email: '',
@@ -59,13 +60,25 @@ export default function AdminDashboard() {
       .then(res => {
         setUsers(prev => [...prev, res.data]);
         setShowAddUser(false);
-        setNewUser({ username:'', password:'', email:'', phone:'', full_name:'', roleId:'' });
+        setNewUser({ id:'',username:'', password:'', email:'', phone:'', full_name:'', roleId:'' });
         setErrors({});
       })
       .catch(err => {
         console.error(err);
         alert("Failed to add user. Check console for details.");
       });
+  };
+
+  const deleteUser = (id) =>{
+    if(!window.confirm("Are you sure you want to delete this user?")) return;
+    api.delete(`/admin/users/${id}`)
+      .then(()=> {
+        setUsers(prev =>prev.filter(u => u.id !==id));
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Failed to delete user.");
+      })
   };
 
   return (
@@ -105,6 +118,7 @@ export default function AdminDashboard() {
           <table className="users-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>USERNAME</th>
                 <th>FULL NAME</th>
                 <th>EMAIL</th>
@@ -116,6 +130,7 @@ export default function AdminDashboard() {
             <tbody>
               {users.map(u => (
                 <tr key={u.id}>
+                  <td className="mono">{u.id}</td>
                   <td className="mono">{u.username}</td>
                   <td>{u.full_name}</td>
                   <td>{u.email}</td>
@@ -125,7 +140,11 @@ export default function AdminDashboard() {
                       {u.status}
                     </span>
                   </td>
-                  <td className="actions-cell">✏️ 🔑 ⋮</td>
+                  <td className="actions-cell">
+                    <button className="delete-btn" onClick={() => deleteUser(u.id)}>
+                        ❌
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
