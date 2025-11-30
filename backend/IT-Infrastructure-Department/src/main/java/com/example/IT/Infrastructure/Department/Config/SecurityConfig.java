@@ -40,7 +40,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("SYSTEM_ADMINISTRATOR")
+                        .requestMatchers("/api/network/**").hasRole("NETWORK_ENGINEER")
+                        .requestMatchers("/api/security/**").hasRole("SECURITY_ENGINEER")
+                        .requestMatchers("/api/devops/**").hasRole("DEVOPS")
+                        .requestMatchers("/api/support/**").hasRole("IT_SUPPORT")
+                        .requestMatchers("/api/database/**").hasRole("DATABASE_ADMINISTRATOR")
+                        .requestMatchers("/api/cloud/**").hasRole("CLOUD_ARCHITECT")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
