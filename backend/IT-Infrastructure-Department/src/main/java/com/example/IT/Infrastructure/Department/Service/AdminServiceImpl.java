@@ -48,4 +48,10 @@ public class AdminServiceImpl implements AdminService {
         return roleRepository.findAll();
     }
 
+    @Override
+    public String deleteUser(Long id){
+        userRepository.deleteById(id);
+        return "Delete user complete";
+    }
+
 }

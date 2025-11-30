@@ -33,4 +33,9 @@ public class AdminController {
         return  ResponseEntity.ok(adminService.getAllRoles());
     }
 
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id){
+        return ResponseEntity.ok(adminService.deleteUser(id));
+    }
+
 }
