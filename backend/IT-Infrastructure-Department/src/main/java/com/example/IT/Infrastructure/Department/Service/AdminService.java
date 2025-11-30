@@ -9,4 +9,6 @@ public interface AdminService {
     List<UserResponseDTO> getAllUsers();
 
     List<Role> getAllRoles();
+
+    String deleteUser(Long id);
 }
