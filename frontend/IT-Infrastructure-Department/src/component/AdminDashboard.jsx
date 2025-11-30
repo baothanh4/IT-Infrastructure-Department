@@ -1,90 +1,137 @@
-import React, { useEffect, useState } from 'react';
-import './AdminDashboard.css';
-import api from "./api"; // axios instance của bạn
+import React, { useEffect, useState } from "react";
+import "./AdminDashboard.css";
+import api from "./api"; // axios instance
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [showAddUser, setShowAddUser] = useState(false);
+
   const [newUser, setNewUser] = useState({
-    id: '',
-    username: '',
-    password: '',
-    email: '',
-    phone: '',
-    full_name: '',
-    roleId: ''
+    id: "",
+    username: "",
+    password: "",
+    email: "",
+    phone: "",
+    full_name: "",
+    roleId: "",
   });
+
   const [errors, setErrors] = useState({});
 
   // Load users
   useEffect(() => {
-    api.get('/admin/users')
-      .then(res => setUsers(res.data))
-      .catch(err => console.error(err));
+    api
+      .get("/admin/users")
+      .then((res) => setUsers(res.data))
+      .catch((err) => console.error(err));
   }, []);
 
   // Load roles
   useEffect(() => {
-    api.get('/admin/roles')
-      .then(res => setRoles(res.data))
-      .catch(err => console.error(err));
+    api
+      .get("/admin/roles")
+      .then((res) => setRoles(res.data))
+      .catch((err) => console.error(err));
   }, []);
 
-  // Handle input change
+  // Input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewUser(prev => ({ ...prev, [name]: value }));
+    setNewUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Basic client-side validation
+  const handleLogout = () => {
+  const token = localStorage.getItem("token"); // token lưu trong localStorage
+  if (!token) {
+    window.location.href = "/login"; // nếu ko có token, redirect luôn
+    return;
+  }
+
+  api.post("/auth/logout", {}, { 
+      headers: { Authorization: `Bearer ${token}` } 
+    })
+    .then(() => {
+      localStorage.removeItem("token"); // xóa token khỏi client
+      alert("Logged out successfully");
+      window.location.href = "/login"; // redirect về login
+    })
+    .catch(err => {
+      console.error(err);
+      localStorage.removeItem("token");
+      window.location.href = "/login"; // dù lỗi vẫn redirect
+    });
+};
+
+
+  // Validate input
   const validate = () => {
     let temp = {};
-    if(!newUser.username) temp.username = "Username is required";
-    if(!newUser.password) temp.password = "Password is required";
-    if(!newUser.email) temp.email = "Email is required";
-    if(!newUser.phone) temp.phone = "Phone is required";
-    if(!newUser.full_name) temp.full_name = "Full name is required";
-    if(!newUser.roleId) temp.roleId = "Role is required";
+
+    if (!newUser.username) temp.username = "Username is required";
+    if (!newUser.password) temp.password = "Password is required";
+    if (!newUser.email) temp.email = "Email is required";
+    if (!newUser.phone) temp.phone = "Phone is required";
+    if (!newUser.full_name) temp.full_name = "Full name is required";
+    if (!newUser.roleId) temp.roleId = "Role is required";
+
     setErrors(temp);
     return Object.keys(temp).length === 0;
   };
 
-  // Handle form submit
+  // Submit form
   const handleSubmit = () => {
-    if(!validate()) return;
+    if (!validate()) return;
 
     const payload = { ...newUser, roleId: Number(newUser.roleId) };
 
-    api.post('/admin/users', payload)
-      .then(res => {
-        setUsers(prev => [...prev, res.data]);
+    api
+      .post("/admin/users", payload)
+      .then((res) => {
+        setUsers((prev) => [...prev, res.data]);
         setShowAddUser(false);
-        setNewUser({ id:'',username:'', password:'', email:'', phone:'', full_name:'', roleId:'' });
+        setNewUser({
+          id: "",
+          username: "",
+          password: "",
+          email: "",
+          phone: "",
+          full_name: "",
+          roleId: "",
+        });
         setErrors({});
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         alert("Failed to add user. Check console for details.");
       });
   };
 
-  const deleteUser = (id) =>{
-    if(!window.confirm("Are you sure you want to delete this user?")) return;
-    api.delete(`/admin/users/${id}`)
-      .then(()=> {
-        setUsers(prev =>prev.filter(u => u.id !==id));
+  // Delete user
+  const deleteUser = (id) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+    api
+      .delete(`/admin/users/${id}`)
+      .then(() => {
+        setUsers((prev) => prev.filter((u) => u.id !== id));
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         alert("Failed to delete user.");
-      })
+      });
   };
 
   return (
     <div className="admin-root">
+      {/* SIDEBAR */}
       <aside className="sidebar">
-        <div className="sidebar-header">Admin Name<br/><span className="muted">IT Department</span></div>
+        <div className="sidebar-header">
+          Admin Name
+          <br />
+          <span className="muted">IT Department</span>
+        </div>
+
         <nav className="nav">
           <a className="nav-item active">Dashboard</a>
           <a className="nav-item">User Management</a>
@@ -92,26 +139,43 @@ export default function AdminDashboard() {
           <a className="nav-item">Logs</a>
           <a className="nav-item">Settings</a>
         </nav>
-        <div className="sidebar-footer">Log Out</div>
+
+        <div className="sidebar-footer" onClick={handleLogout} style={{cursor:"pointer"}}>
+          Log Out
+        </div>
       </aside>
 
+      {/* MAIN AREA */}
       <section className="main-area">
         <header className="main-header">
           <div>
             <h1>User Management</h1>
-            <p className="sub">Manage information for all staff including IT, Users, and Managers.</p>
+            <p className="sub">
+              Manage information for all staff including IT, Users, and Managers.
+            </p>
           </div>
+
           <div className="actions">
-            <input className="search" placeholder="Search by username, name, email..." />
-            <button className="add-btn" onClick={() => setShowAddUser(true)}>+ Add New User</button>
+            <input
+              className="search"
+              placeholder="Search by username, name, email..."
+            />
+            <button className="add-btn" onClick={() => setShowAddUser(true)}>
+              + Add New User
+            </button>
           </div>
         </header>
 
+        {/* USERS TABLE */}
         <div className="table-card">
           <div className="table-controls">
             <div className="filters">
-              <select><option>Role: All</option></select>
-              <select><option>Status: All</option></select>
+              <select>
+                <option>Role: All</option>
+              </select>
+              <select>
+                <option>Status: All</option>
+              </select>
             </div>
           </div>
 
@@ -128,8 +192,9 @@ export default function AdminDashboard() {
                 <th>ACTIONS</th>
               </tr>
             </thead>
+
             <tbody>
-              {users.map(u => (
+              {users.map((u) => (
                 <tr key={u.id}>
                   <td className="mono">{u.id}</td>
                   <td className="mono">{u.username}</td>
@@ -137,14 +202,20 @@ export default function AdminDashboard() {
                   <td className="mono">{u.phone}</td>
                   <td>{u.email}</td>
                   <td>{u.role_name}</td>
+
                   <td>
-                    <span className={`status ${u.status === 'ACTIVED' ? 'active' : 'inactive'}`}>
+                    <span
+                      className={`status ${
+                        u.status === "ACTIVED" ? "active" : "inactive"
+                      }`}
+                    >
                       {u.status}
                     </span>
                   </td>
+
                   <td className="actions-cell">
                     <button className="delete-btn" onClick={() => deleteUser(u.id)}>
-                        ❌
+                      ❌
                     </button>
                   </td>
                 </tr>
@@ -153,17 +224,18 @@ export default function AdminDashboard() {
           </table>
 
           <div className="table-footer">
-            Showing 1-{users.length} of {users.length}
-            <div className="pager">Previous 1 2 Next</div>
+            Showing 1–{users.length} of {users.length}
+            <div className="pager">Previous • 1 • 2 • Next</div>
           </div>
         </div>
       </section>
 
-      {/* Add User Modal */}
+      {/* ADD USER MODAL */}
       {showAddUser && (
         <div className="modal-backdrop">
           <div className="modal">
             <h2>Add New User</h2>
+
             <div className="modal-body">
               <input
                 name="username"
@@ -171,16 +243,20 @@ export default function AdminDashboard() {
                 value={newUser.username}
                 onChange={handleChange}
               />
-              {errors.username && <small className="error">{errors.username}</small>}
+              {errors.username && (
+                <small className="error">{errors.username}</small>
+              )}
 
               <input
                 name="password"
-                placeholder="Password"
                 type="password"
+                placeholder="Password"
                 value={newUser.password}
                 onChange={handleChange}
               />
-              {errors.password && <small className="error">{errors.password}</small>}
+              {errors.password && (
+                <small className="error">{errors.password}</small>
+              )}
 
               <input
                 name="full_name"
@@ -188,7 +264,9 @@ export default function AdminDashboard() {
                 value={newUser.full_name}
                 onChange={handleChange}
               />
-              {errors.full_name && <small className="error">{errors.full_name}</small>}
+              {errors.full_name && (
+                <small className="error">{errors.full_name}</small>
+              )}
 
               <input
                 name="email"
@@ -212,19 +290,29 @@ export default function AdminDashboard() {
                 onChange={handleChange}
               >
                 <option value="">Select Role</option>
-                {roles.map(role => (
-                  <option key={role.id} value={role.id}>{role.name}</option>
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
                 ))}
               </select>
               {errors.roleId && <small className="error">{errors.roleId}</small>}
             </div>
+
             <div className="modal-footer">
               <button onClick={handleSubmit}>Add User</button>
-              <button onClick={() => { setShowAddUser(false); setErrors({}); }}>Cancel</button>
+              <button
+                onClick={() => {
+                  setShowAddUser(false);
+                  setErrors({});
+                }}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-} 
+}

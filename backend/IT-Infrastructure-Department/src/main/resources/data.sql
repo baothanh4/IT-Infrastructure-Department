@@ -20,6 +20,11 @@ CREATE TABLE Users (
                                REFERENCES Role(id)
                                ON DELETE SET NULL
 );
+create table BlackListedToken(
+    id SERIAL,
+    token VARCHAR(500),
+    expired_at DATE
+);
 
 
 insert into Role(name) values('NETWORK_ENGINEER');
