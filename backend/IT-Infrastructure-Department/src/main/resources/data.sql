@@ -21,8 +21,16 @@ CREATE TABLE Users (
                                ON DELETE SET NULL
 );
 
-insert into Role(name) values('ADMIN');
-insert into Role(name) values('STAFF');
-insert into Role(name) values('MANAGER');
+
+insert into Role(name) values('NETWORK_ENGINEER');
+insert into Role(name) values('SECURITY_ENGINEER');
+insert into Role(name) values('SYSTEM_ADMINISTRATOR');
+insert into Role(name) values('CLOUD_ARCHITECT');
+insert into Role(name) values('DEVOPS');
+insert into Role(name) values('IT_SUPPORT');
+insert into Role(name) values('DATABASE_ADMINISTRATOR');
+
+
+
 
 

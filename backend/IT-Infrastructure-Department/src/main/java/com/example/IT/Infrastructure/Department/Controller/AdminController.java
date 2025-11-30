@@ -2,6 +2,7 @@ package com.example.IT.Infrastructure.Department.Controller;
 
 
 import com.example.IT.Infrastructure.Department.DTO.RegisterRequestDTO;
+import com.example.IT.Infrastructure.Department.DTO.UpdateUserRequestDTO;
 import com.example.IT.Infrastructure.Department.Service.AdminService;
 import com.example.IT.Infrastructure.Department.Service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +38,12 @@ public class AdminController {
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
         return ResponseEntity.ok(adminService.deleteUser(id));
     }
+
+    @PatchMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequestDTO dto){
+        adminService.updateUser(id,dto);
+        return ResponseEntity.ok().body("Update user successfully");
+    }
+
 
 }

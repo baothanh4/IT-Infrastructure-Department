@@ -1,5 +1,6 @@
 package com.example.IT.Infrastructure.Department.Service;
 
+import com.example.IT.Infrastructure.Department.DTO.UpdateUserRequestDTO;
 import com.example.IT.Infrastructure.Department.DTO.UserResponseDTO;
 import com.example.IT.Infrastructure.Department.Model.Role;
 
@@ -11,4 +12,6 @@ public interface AdminService {
     List<Role> getAllRoles();
 
     String deleteUser(Long id);
+
+    void updateUser(Long id, UpdateUserRequestDTO dto);
 }
